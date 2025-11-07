@@ -23,12 +23,14 @@ body {
     background-color: var(--background-color);
     color: var(--text-color);
     line-height: 1.6;
+    overflow-x: hidden;
 }
 
 .container {
     max-width: 1400px;
     margin: 0 auto;
     padding: 20px;
+    overflow-x: hidden;
 }
 
 /* Header */
@@ -45,6 +47,8 @@ header {
 header h1 {
     font-size: 2.5rem;
     margin-bottom: 10px;
+    word-break: keep-all;
+    overflow-wrap: normal;
 }
 
 .subtitle {
@@ -61,7 +65,7 @@ header h1 {
 
 .deck-builder-layout {
     display: grid;
-    grid-template-columns: 1fr 300px 350px;
+    grid-template-columns: 1fr 1fr 350px;
     gap: 20px;
 }
 
@@ -232,7 +236,8 @@ footer a:hover {
     }
 
     header h1 {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
+        word-break: keep-all;
     }
 
     .deck-builder-layout {
@@ -369,6 +374,8 @@ footer a:hover {
     flex-shrink: 0;
     padding: 6px 12px;
     font-size: 0.85rem;
+    max-width: 70px;
+    white-space: nowrap;
 }
 
 .deck-actions {
@@ -464,6 +471,7 @@ footer a:hover {
 .character-list {
     max-height: 600px;
     overflow-y: auto;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -481,7 +489,6 @@ footer a:hover {
 .character-item:hover {
     background: #d5dbdb;
     border-color: var(--secondary-color);
-    transform: translateX(5px);
 }
 
 .char-info {
@@ -511,6 +518,15 @@ footer a:hover {
     gap: 15px;
     font-size: 0.9rem;
     color: #555;
+    margin-bottom: 8px;
+}
+
+.char-text {
+    font-size: 0.85rem;
+    color: #666;
+    line-height: 1.4;
+    padding-top: 6px;
+    border-top: 1px solid #e0e0e0;
 }
 
 /* Preview Panel */

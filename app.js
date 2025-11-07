@@ -257,7 +257,7 @@ function displayCharacterList() {
     characterList.innerHTML = '';
 
     if (characters.length === 0) {
-        characterList.innerHTML = '<p class="no-results">該当するキャラクターがありません</p>';
+        characterList.innerHTML = '<p class="no-results">該当するカードがありません</p>';
         return;
     }
 
@@ -267,16 +267,17 @@ function displayCharacterList() {
 
         const cost = card.cost !== null && card.cost !== undefined ? card.cost : '-';
         const power = card.power !== null && card.power !== undefined ? card.power : '-';
+        const text = card.text || '';
 
         cardItem.innerHTML = `
             <div class="char-info">
-                <span class="char-id">[${card.id.toString().padStart(3, '0')}]</span>
                 <span class="char-name">${escapeHtml(card.name)}</span>
             </div>
             <div class="char-stats">
                 <span>コスト: ${cost}</span>
                 <span>パワー: ${power}</span>
             </div>
+            ${text ? `<div class="char-text">${escapeHtml(text)}</div>` : ''}
         `;
 
         cardItem.addEventListener('click', () => addCardToDeck(card));
@@ -293,12 +294,10 @@ function filterCharacters() {
 function addCardToDeck(card) {
     // Validate deck rules
     if (currentDeck.length >= DECK_RULES.maxCards) {
-        alert(`デッキには最大${DECK_RULES.maxCards}枚までしか入れられません。`);
         return;
     }
 
     if (!DECK_RULES.allowedTypes.includes(card.type)) {
-        alert('デッキにはキャラクター(type: 0)のカードのみ入れることができます。');
         return;
     }
 
@@ -344,9 +343,7 @@ function updateDeckList() {
         const cost = card.cost !== null && card.cost !== undefined ? card.cost : '-';
 
         deckItem.innerHTML = `
-            <span class="deck-item-number">${index + 1}.</span>
             <span class="deck-item-name">${escapeHtml(card.name)}</span>
-            <span class="deck-item-cost">コスト: ${cost}</span>
             <button class="deck-item-remove btn-secondary" data-index="${index}">削除</button>
         `;
 
