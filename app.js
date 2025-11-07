@@ -566,19 +566,15 @@ async function saveDeckAsImage() {
 
     await Promise.all(imagePromises);
 
-    // Get selected format
-    const format = document.querySelector('input[name="image-format"]:checked').value;
-    const mimeType = format === 'png' ? 'image/png' : 'image/jpeg';
-
-    // Download image
+    // Download image as PNG
     canvas.toBlob((blob) => {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `deck_${Date.now()}.${format}`;
+        link.download = `deck_${Date.now()}.png`;
         link.click();
         URL.revokeObjectURL(url);
-    }, mimeType, 0.95);
+    }, 'image/png');
 }
 
 // Save deck to localStorage
