@@ -60,10 +60,10 @@
                     </div>
                 </div>
 
-                <!-- Deck List Panel -->
-                <div class="deck-panel">
+                <!-- Preview Panel -->
+                <div class="preview-panel">
                     <div class="deck-header">
-                        <h2>現在のデッキ</h2>
+                        <h2>デッキプレビュー</h2>
                         <span id="deck-count" class="deck-count">0/9</span>
                     </div>
                     <div class="deck-stats">
@@ -72,19 +72,6 @@
                             <span id="total-cost" class="stat-value">0</span>
                         </div>
                     </div>
-                    <div id="deck-list" class="deck-list">
-                        <p class="no-cards">カードを追加してください</p>
-                    </div>
-                    <div class="deck-actions">
-                        <button id="clear-deck-btn" class="btn-secondary">デッキをクリア</button>
-                        <button id="export-deck-btn" class="btn-secondary">エクスポート</button>
-                        <button id="import-deck-btn" class="btn-secondary">インポート</button>
-                    </div>
-                </div>
-
-                <!-- 3x3 Preview Panel -->
-                <div class="preview-panel">
-                    <h2>デッキプレビュー (3x3)</h2>
                     <div id="deck-grid" class="deck-grid">
                         <!-- 3x3 grid will be rendered here -->
                         <div class="grid-slot empty" data-slot="0"></div>
@@ -98,7 +85,11 @@
                         <div class="grid-slot empty" data-slot="8"></div>
                     </div>
                     <div class="preview-actions">
+                        <button id="clear-deck-btn" class="btn-secondary">デッキをクリア</button>
+                        <button id="export-deck-btn" class="btn-secondary">エクスポート</button>
+                        <button id="import-deck-btn" class="btn-secondary">インポート</button>
                         <button id="save-image-btn" class="btn-primary" disabled>画像として保存</button>
+                    </div>
                     </div>
                     <canvas id="deck-canvas" style="display: none;"></canvas>
                 </div>

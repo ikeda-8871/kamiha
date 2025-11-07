@@ -315,50 +315,20 @@ function removeCardFromDeck(index) {
 }
 
 // Update deck display
+// Update deck display
 function updateDeckDisplay() {
-    updateDeckList();
     updateDeckStats();
     updateDeckGrid();
     updateSaveButton();
 }
 
-// Update deck list panel
-function updateDeckList() {
-    const deckList = document.getElementById('deck-list');
+// Update deck statistics
+function updateDeckStats() {
     const deckCount = document.getElementById('deck-count');
+    const totalCostElement = document.getElementById('total-cost');
 
     deckCount.textContent = `${currentDeck.length}/${DECK_RULES.maxCards}`;
     deckCount.className = 'deck-count ' + (currentDeck.length === DECK_RULES.maxCards ? 'full' : '');
-
-    if (currentDeck.length === 0) {
-        deckList.innerHTML = '<p class="no-cards">カードを追加してください</p>';
-        return;
-    }
-
-    deckList.innerHTML = '';
-    currentDeck.forEach((card, index) => {
-        const deckItem = document.createElement('div');
-        deckItem.className = 'deck-item';
-
-        const cost = card.cost !== null && card.cost !== undefined ? card.cost : '-';
-
-        deckItem.innerHTML = `
-            <span class="deck-item-name">${escapeHtml(card.name)}</span>
-            <button class="deck-item-remove btn-secondary" data-index="${index}">削除</button>
-        `;
-
-        deckItem.querySelector('.deck-item-remove').addEventListener('click', (e) => {
-            e.stopPropagation();
-            removeCardFromDeck(index);
-        });
-
-        deckList.appendChild(deckItem);
-    });
-}
-
-// Update deck statistics
-function updateDeckStats() {
-    const totalCostElement = document.getElementById('total-cost');
 
     if (currentDeck.length === 0) {
         totalCostElement.textContent = '0';
@@ -381,9 +351,16 @@ function updateDeckGrid() {
         slot.innerHTML = '';
         slot.className = 'grid-slot';
 
+        // Remove old event listener by cloning
+        const newSlot = slot.cloneNode(true);
+        slot.parentNode.replaceChild(newSlot, slot);
+
         if (index < currentDeck.length) {
             const card = currentDeck[index];
-            slot.classList.add('filled');
+            newSlot.classList.add('filled');
+
+            const cardContainer = document.createElement('div');
+            cardContainer.className = 'card-container';
 
             if (card.image) {
                 const img = document.createElement('img');
@@ -391,15 +368,27 @@ function updateDeckGrid() {
                 img.alt = card.name;
                 img.onerror = () => {
                     img.style.display = 'none';
-                    slot.innerHTML = `<div class="card-placeholder">${escapeHtml(card.name)}</div>`;
+                    cardContainer.innerHTML = `<div class="card-placeholder">${escapeHtml(card.name)}</div>`;
                 };
-                slot.appendChild(img);
+                cardContainer.appendChild(img);
             } else {
-                slot.innerHTML = `<div class="card-placeholder">${escapeHtml(card.name)}</div>`;
+                cardContainer.innerHTML = `<div class="card-placeholder">${escapeHtml(card.name)}</div>`;
             }
+
+            // Add remove button
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'grid-remove-btn';
+            removeBtn.innerHTML = '×';
+            removeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                removeCardFromDeck(index);
+            });
+
+            cardContainer.appendChild(removeBtn);
+            newSlot.appendChild(cardContainer);
         } else {
-            slot.classList.add('empty');
-            slot.innerHTML = `<div class="slot-number">${index + 1}</div>`;
+            newSlot.classList.add('empty');
+            newSlot.innerHTML = `<div class="slot-number">${index + 1}</div>`;
         }
     });
 }
