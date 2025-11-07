@@ -110,6 +110,37 @@
         </footer>
     </div>
 
+    <!-- Deck Code Export Modal -->
+    <div id="deck-code-export-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>デッキコードをエクスポート</h2>
+            <p>以下のコードをコピーして保存してください。</p>
+            <div id="export-error-message" class="error-message" style="display: none;"></div>
+            <textarea id="deck-code-export-textarea" readonly></textarea>
+            <div class="modal-buttons">
+                <button id="copy-export-code-btn" class="btn-primary">コピー</button>
+                <button id="close-export-modal-btn" class="btn-secondary">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deck Code Import Modal -->
+    <div id="deck-code-import-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>デッキコードをインポート</h2>
+            <p>デッキコードを入力してください。</p>
+            <div id="import-error-message" class="error-message" style="display: none;"></div>
+            <div id="import-success-message" class="success-message" style="display: none;"></div>
+            <textarea id="deck-code-import-textarea" placeholder="カンマ区切りのカードIDを入力..."></textarea>
+            <div class="modal-buttons">
+                <button id="import-code-btn" class="btn-primary">読み込む</button>
+                <button id="close-import-modal-btn" class="btn-secondary">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
     <script src="app.js"></script>
-</body>
+</invoke>
+<invoke name="replace_string_in_file">
+<parameter name="filePath">c:\Users\r.ikeda\Documents\kamiha\index.html</body>
 </html>

@@ -50,11 +50,29 @@ function setupEventListeners() {
     document.getElementById('save-image-btn').addEventListener('click', saveDeckAsImage);
     document.getElementById('deck-search').addEventListener('input', filterCharacters);
     document.getElementById('deck-pack-filter').addEventListener('change', filterCharacters);
-    document.getElementById('deck-cost-min').addEventListener('input', filterCharacters);
-    document.getElementById('deck-cost-max').addEventListener('input', filterCharacters);
-    document.getElementById('deck-power-min').addEventListener('input', filterCharacters);
-    document.getElementById('deck-power-max').addEventListener('input', filterCharacters);
+    document.getElementById('deck-cost-min').addEventListener('change', filterCharacters);
+    document.getElementById('deck-cost-max').addEventListener('change', filterCharacters);
+    document.getElementById('deck-power-min').addEventListener('change', filterCharacters);
+    document.getElementById('deck-power-max').addEventListener('change', filterCharacters);
     document.getElementById('deck-ability-filter').addEventListener('change', filterCharacters);
+
+    // Export modal event listeners
+    document.getElementById('close-export-modal-btn').addEventListener('click', closeExportModal);
+    document.getElementById('copy-export-code-btn').addEventListener('click', copyExportDeckCode);
+    document.getElementById('deck-code-export-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'deck-code-export-modal') {
+            closeExportModal();
+        }
+    });
+
+    // Import modal event listeners
+    document.getElementById('close-import-modal-btn').addEventListener('click', closeImportModal);
+    document.getElementById('import-code-btn').addEventListener('click', processImportDeckCode);
+    document.getElementById('deck-code-import-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'deck-code-import-modal') {
+            closeImportModal();
+        }
+    });
 }
 
 // Escape HTML to prevent XSS
@@ -407,80 +425,196 @@ function clearDeck() {
 }
 
 // Export deck as JSON
+// Export deck as text code
+// Export deck as text code
 function exportDeck() {
     if (currentDeck.length === 0) {
-        alert('デッキが空です。');
+        showImportError('デッキが空です。');
         return;
     }
 
-    const deckData = {
-        version: '1.0',
-        created: new Date().toISOString(),
-        cards: currentDeck.map(card => ({
-            id: card.id,
-            name: card.name,
-            cost: card.cost
-        }))
-    };
+    // Create deck code from card IDs (e.g., "1,5,9,12,15,20,25,30,35")
+    const deckCode = currentDeck.map(card => card.id).join(',');
 
-    const dataStr = JSON.stringify(deckData, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `deck_${Date.now()}.json`;
-    link.click();
-
-    URL.revokeObjectURL(url);
+    // Show export modal with deck code
+    showExportModal(deckCode);
 }
 
-// Import deck from JSON
+// Import deck from text code
 function importDeck() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
+    // Show import modal
+    showImportModal();
+}
 
-    input.onchange = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+// Show export modal
+function showExportModal(deckCode) {
+    const modal = document.getElementById('deck-code-export-modal');
+    const textarea = document.getElementById('deck-code-export-textarea');
+    const errorMsg = document.getElementById('export-error-message');
 
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            try {
-                const deckData = JSON.parse(event.target.result);
+    // Clear error message
+    errorMsg.style.display = 'none';
+    errorMsg.textContent = '';
 
-                if (!deckData.cards || !Array.isArray(deckData.cards)) {
-                    throw new Error('Invalid deck format');
-                }
+    textarea.value = deckCode;
+    modal.style.display = 'flex';
 
-                // Reconstruct deck from card IDs
-                const newDeck = [];
-                for (const cardInfo of deckData.cards) {
-                    const card = cards.find(c => c.id === cardInfo.id);
-                    if (card && card.type === 0) {
-                        newDeck.push(card);
-                    }
-                }
+    // Select all text for easy copying
+    setTimeout(() => {
+        textarea.select();
+        textarea.focus();
+    }, 100);
+}
 
-                if (newDeck.length === 0) {
-                    alert('有効なカードが見つかりませんでした。');
-                    return;
-                }
+// Close export modal
+function closeExportModal() {
+    const modal = document.getElementById('deck-code-export-modal');
+    modal.style.display = 'none';
+}
 
-                currentDeck = newDeck.slice(0, DECK_RULES.maxCards);
-                saveDeckToStorage();
-                updateDeckDisplay();
-                alert(`${currentDeck.length}枚のカードを読み込みました。`);
-            } catch (error) {
-                alert('デッキの読み込みに失敗しました: ' + error.message);
+// Copy export deck code to clipboard
+function copyExportDeckCode() {
+    const textarea = document.getElementById('deck-code-export-textarea');
+    const deckCode = textarea.value;
+    const errorMsg = document.getElementById('export-error-message');
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(deckCode).then(() => {
+            const btn = document.getElementById('copy-export-code-btn');
+            const originalText = btn.textContent;
+            btn.textContent = 'コピーしました！';
+            btn.style.backgroundColor = '#27ae60';
+
+            // Clear any error message
+            errorMsg.style.display = 'none';
+            errorMsg.textContent = '';
+
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.backgroundColor = '';
+            }, 2000);
+        }).catch(() => {
+            showExportError('コピーに失敗しました。手動でコピーしてください。');
+        });
+    } else {
+        // Fallback for older browsers
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            const btn = document.getElementById('copy-export-code-btn');
+            const originalText = btn.textContent;
+            btn.textContent = 'コピーしました！';
+            btn.style.backgroundColor = '#27ae60';
+
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.backgroundColor = '';
+            }, 2000);
+        } catch (err) {
+            showExportError('コピーに失敗しました。手動でコピーしてください。');
+        }
+    }
+}
+
+// Show export error message
+function showExportError(message) {
+    const errorMsg = document.getElementById('export-error-message');
+    errorMsg.textContent = message;
+    errorMsg.style.display = 'block';
+}
+
+// Show import modal
+function showImportModal() {
+    const modal = document.getElementById('deck-code-import-modal');
+    const textarea = document.getElementById('deck-code-import-textarea');
+    const errorMsg = document.getElementById('import-error-message');
+    const successMsg = document.getElementById('import-success-message');
+
+    // Clear messages
+    errorMsg.style.display = 'none';
+    errorMsg.textContent = '';
+    successMsg.style.display = 'none';
+    successMsg.textContent = '';
+
+    textarea.value = '';
+    modal.style.display = 'flex';
+
+    // Focus on textarea
+    setTimeout(() => {
+        textarea.focus();
+    }, 100);
+}
+
+// Close import modal
+function closeImportModal() {
+    const modal = document.getElementById('deck-code-import-modal');
+    modal.style.display = 'none';
+}
+
+// Show import error message
+function showImportError(message) {
+    const errorMsg = document.getElementById('import-error-message');
+    const successMsg = document.getElementById('import-success-message');
+
+    successMsg.style.display = 'none';
+    errorMsg.textContent = message;
+    errorMsg.style.display = 'block';
+}
+
+// Show import success message
+function showImportSuccess(message) {
+    const errorMsg = document.getElementById('import-error-message');
+    const successMsg = document.getElementById('import-success-message');
+
+    errorMsg.style.display = 'none';
+    successMsg.textContent = message;
+    successMsg.style.display = 'block';
+
+    // Auto close after success
+    setTimeout(() => {
+        closeImportModal();
+    }, 1500);
+}
+
+// Process import deck code
+function processImportDeckCode() {
+    const textarea = document.getElementById('deck-code-import-textarea');
+    const deckCode = textarea.value.trim();
+
+    if (!deckCode) {
+        showImportError('デッキコードを入力してください。');
+        return;
+    }
+
+    try {
+        // Parse deck code
+        const cardIds = deckCode.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+
+        if (cardIds.length === 0) {
+            throw new Error('有効なカードIDが見つかりませんでした。');
+        }
+
+        // Reconstruct deck from card IDs
+        const newDeck = [];
+        for (const cardId of cardIds) {
+            const card = cards.find(c => c.id === cardId);
+            if (card && card.type === 0) {
+                newDeck.push(card);
             }
-        };
+        }
 
-        reader.readAsText(file);
-    };
+        if (newDeck.length === 0) {
+            showImportError('有効なカードが見つかりませんでした。');
+            return;
+        }
 
-    input.click();
+        currentDeck = newDeck.slice(0, DECK_RULES.maxCards);
+        saveDeckToStorage();
+        updateDeckDisplay();
+        showImportSuccess(`${currentDeck.length}枚のカードを読み込みました。`);
+    } catch (error) {
+        showImportError('デッキの読み込みに失敗しました: ' + error.message);
+    }
 }
 
 // Save deck as image
