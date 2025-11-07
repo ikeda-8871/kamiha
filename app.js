@@ -89,6 +89,61 @@ function populateFilters() {
         packFilter.appendChild(option);
     });
 
+    // Cost filters - Get unique cost values from character cards
+    const costs = new Set();
+    cards.filter(c => c.type === 0).forEach(card => {
+        if (card.cost !== null && card.cost !== undefined) {
+            costs.add(card.cost);
+        }
+    });
+    const sortedCosts = [...costs].sort((a, b) => a - b);
+
+    const costMinFilter = document.getElementById('deck-cost-min');
+    const costMaxFilter = document.getElementById('deck-cost-max');
+    costMinFilter.innerHTML = '<option value="">最小</option>';
+    costMaxFilter.innerHTML = '<option value="">最大</option>';
+
+    sortedCosts.forEach(cost => {
+        const optionMin = document.createElement('option');
+        optionMin.value = cost;
+        optionMin.textContent = cost;
+        costMinFilter.appendChild(optionMin);
+
+        const optionMax = document.createElement('option');
+        optionMax.value = cost;
+        optionMax.textContent = cost;
+        costMaxFilter.appendChild(optionMax);
+    });
+
+    // Power filters - 0 to 8+
+    const powerMinFilter = document.getElementById('deck-power-min');
+    const powerMaxFilter = document.getElementById('deck-power-max');
+    powerMinFilter.innerHTML = '<option value="">最小</option>';
+    powerMaxFilter.innerHTML = '<option value="">最大</option>';
+
+    for (let i = 0; i <= 8; i++) {
+        const optionMin = document.createElement('option');
+        optionMin.value = i;
+        optionMin.textContent = i;
+        powerMinFilter.appendChild(optionMin);
+
+        const optionMax = document.createElement('option');
+        optionMax.value = i;
+        optionMax.textContent = i;
+        powerMaxFilter.appendChild(optionMax);
+    }
+
+    // Add 8+ option
+    const optionMin8Plus = document.createElement('option');
+    optionMin8Plus.value = 9;
+    optionMin8Plus.textContent = '8+';
+    powerMinFilter.appendChild(optionMin8Plus);
+
+    const optionMax8Plus = document.createElement('option');
+    optionMax8Plus.value = 9;
+    optionMax8Plus.textContent = '8+';
+    powerMaxFilter.appendChild(optionMax8Plus);
+
     // Ability filter
     const abilityFilter = document.getElementById('deck-ability-filter');
     const abilities = new Set();
@@ -153,11 +208,21 @@ function displayCharacterList() {
     // Power range filter
     if (powerMin !== '') {
         const min = parseInt(powerMin);
-        characters = characters.filter(card => card.power != null && card.power >= min);
+        if (min >= 9) {
+            // 8+ means power >= 8
+            characters = characters.filter(card => card.power != null && card.power >= 8);
+        } else {
+            characters = characters.filter(card => card.power != null && card.power >= min);
+        }
     }
     if (powerMax !== '') {
         const max = parseInt(powerMax);
-        characters = characters.filter(card => card.power != null && card.power <= max);
+        if (max >= 9) {
+            // 8+ means power >= 8 (no upper limit)
+            characters = characters.filter(card => card.power != null && card.power >= 8);
+        } else {
+            characters = characters.filter(card => card.power != null && card.power <= max);
+        }
     }
 
     // Ability filter
