@@ -1,0 +1,58 @@
+name: Deploy to GitHub Pages
+
+# このワークフローは、パブリックリポジトリ（コード）とプライベートリポジトリ（データ）を
+# 組み合わせてGitHub Pagesにデプロイします。
+#
+# 前提条件:
+# 1. プライベートリポジトリ ikeda-8871/kamiha-data が存在すること
+# 2. Personal Access Token が DATA_REPO_TOKEN として Secrets に設定されていること
+#
+# 詳細なセットアップ手順は SETUP.md を参照してください。
+
+on:
+  push:
+    branches: [ main, dev ]  # devブランチでもテスト可能に
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout public repository
+        uses: actions/checkout@v4
+
+      - name: Checkout private data repository
+        uses: actions/checkout@v4
+        with:
+          repository: ikeda-8871/kamiha-data  # TODO: 自分のリポジトリ名に変更してください
+          token: ${{ secrets.DATA_REPO_TOKEN }}  # Personal Access Token
+          path: data-temp
+
+      - name: Move data files to correct location
+        run: |
+          mv data-temp/data ./data
+          rm -rf data-temp
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

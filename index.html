@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>紙ハクフロ カード検索 & デッキメーカー</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>紙ハクフロ デッキメーカー</h1>
+        </header>
+
+        <!-- Deck Builder -->
+        <main class="deck-builder-main">
+            <div class="deck-builder-layout">
+                <!-- Card Selection Panel -->
+                <div class="card-selection-panel">
+                    <h2>キャラクター選択</h2>
+                    <div class="search-filters">
+                        <input type="text" id="deck-search" placeholder="フリーワード検索（カード名・タグ・効果テキスト）">
+
+                        <select id="deck-pack-filter">
+                            <option value="">全てのパック</option>
+                        </select>
+
+                        <div class="range-filter">
+                            <label>コスト</label>
+                            <div class="range-inputs">
+                                <input type="number" id="deck-cost-min" placeholder="最小" min="0">
+                                <span>〜</span>
+                                <input type="number" id="deck-cost-max" placeholder="最大" min="0">
+                            </div>
+                        </div>
+
+                        <div class="range-filter">
+                            <label>パワー</label>
+                            <div class="range-inputs">
+                                <input type="number" id="deck-power-min" placeholder="最小" min="0">
+                                <span>〜</span>
+                                <input type="number" id="deck-power-max" placeholder="最大" min="0">
+                            </div>
+                        </div>
+
+                        <select id="deck-ability-filter">
+                            <option value="">全ての能力</option>
+                        </select>
+                    </div>
+                    <div id="character-list" class="character-list">
+                        <!-- Characters will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Deck List Panel -->
+                <div class="deck-panel">
+                    <div class="deck-header">
+                        <h2>現在のデッキ</h2>
+                        <span id="deck-count" class="deck-count">0/9</span>
+                    </div>
+                    <div class="deck-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">合計コスト:</span>
+                            <span id="total-cost" class="stat-value">0</span>
+                        </div>
+                    </div>
+                    <div id="deck-list" class="deck-list">
+                        <p class="no-cards">カードを追加してください</p>
+                    </div>
+                    <div class="deck-actions">
+                        <button id="clear-deck-btn" class="btn-secondary">デッキをクリア</button>
+                        <button id="export-deck-btn" class="btn-secondary">エクスポート</button>
+                        <button id="import-deck-btn" class="btn-secondary">インポート</button>
+                    </div>
+                </div>
+
+                <!-- 3x3 Preview Panel -->
+                <div class="preview-panel">
+                    <h2>デッキプレビュー (3x3)</h2>
+                    <div id="deck-grid" class="deck-grid">
+                        <!-- 3x3 grid will be rendered here -->
+                        <div class="grid-slot empty" data-slot="0"></div>
+                        <div class="grid-slot empty" data-slot="1"></div>
+                        <div class="grid-slot empty" data-slot="2"></div>
+                        <div class="grid-slot empty" data-slot="3"></div>
+                        <div class="grid-slot empty" data-slot="4"></div>
+                        <div class="grid-slot empty" data-slot="5"></div>
+                        <div class="grid-slot empty" data-slot="6"></div>
+                        <div class="grid-slot empty" data-slot="7"></div>
+                        <div class="grid-slot empty" data-slot="8"></div>
+                    </div>
+                    <div class="preview-actions">
+                        <button id="save-image-btn" class="btn-primary" disabled>画像として保存</button>
+                        <div class="image-options">
+                            <label>
+                                <input type="radio" name="image-format" value="png" checked>
+                                PNG
+                            </label>
+                            <label>
+                                <input type="radio" name="image-format" value="jpeg">
+                                JPEG
+                            </label>
+                        </div>
+                    </div>
+                    <canvas id="deck-canvas" style="display: none;"></canvas>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>データソース: <a href="https://sitappa.com/hakurei_ss/kamiCardMasterData.js" target="_blank">公式カードデータ</a></p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
